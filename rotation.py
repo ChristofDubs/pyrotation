@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: latin-1 -*-
+
 """Quaternion class and further rotation related functions
 """
 import numpy as np
