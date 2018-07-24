@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from rotation import Quaternion, quat_from_angle_axis, quat_from_angle_vector, quat_from_roll_pitch_yaw, rot_from_angle_axis, rot_from_angle_vector, rot_x, rot_y, rot_z
+from rotation import Quaternion, quat_from_angle_axis, quat_from_angle_vector, quat_from_roll_pitch_yaw, rot_from_angle_axis, rot_from_angle_vector, rot_from_roll_pitch_yaw, rot_x, rot_y, rot_z
 
 
 class TestRotation(unittest.TestCase):
@@ -59,6 +59,16 @@ class TestRotation(unittest.TestCase):
         angle = 2.1921
         rot1 = rot_z(angle)
         rot2 = rot_from_angle_axis(angle, np.array([0, 0, 1]))
+
+        self.check_rot_equal(rot1, rot2)
+
+    def test_rot_from_roll_pitch_yaw(self):
+        roll = 1.8526989
+        pitch = -0.75699
+        yaw = -2.89421
+
+        rot1 = np.dot(rot_z(yaw), np.dot(rot_y(pitch), rot_x(roll)))
+        rot2 = rot_from_roll_pitch_yaw(roll, pitch, yaw)
 
         self.check_rot_equal(rot1, rot2)
 

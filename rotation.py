@@ -241,6 +241,22 @@ def rot_from_angle_vector(angle_vec):
     return rot_from_angle_axis(angle, angle_vec, norm=angle)
 
 
+def rot_from_roll_pitch_yaw(roll, pitch, yaw):
+    """calculate rotation matrix from roll, pitch and yaw
+
+    This result can be generated symbolically by rot_z(yaw) * rot_y(pitch) * rot_x(roll).
+    """
+    return np.array([[cos(pitch) * cos(yaw),
+                      sin(pitch) * sin(roll) * cos(yaw) - sin(yaw) * cos(roll),
+                      sin(pitch) * cos(roll) * cos(yaw) + sin(roll) * sin(yaw)],
+                     [sin(yaw) * cos(pitch),
+                      sin(pitch) * sin(roll) * sin(yaw) + cos(roll) * cos(yaw),
+                      sin(pitch) * sin(yaw) * cos(roll) - sin(roll) * cos(yaw)],
+                     [-sin(pitch),
+                      sin(roll) * cos(pitch),
+                      cos(pitch) * cos(roll)]])
+
+
 def rot_x(angle):
     """calculate rotation matrix for a rotation around the x-axis"""
     c = cos(angle)
