@@ -173,6 +173,34 @@ class TestRotation(unittest.TestCase):
         self.assertAlmostEqual(pitch, rpy[1])
         self.assertAlmostEqual(yaw, rpy[2])
 
+    def test_roll_pitch_yaw_singular(self):
+        roll = 1.8526989
+        pitch = np.pi / 2
+        yaw = 2.89421
+
+        q = quat_from_angle_vector(np.array([0, 0, yaw])) * quat_from_angle_vector(
+            np.array([0, pitch, 0])) * quat_from_angle_vector(np.array([roll, 0, 0]))
+
+        rpy = q.get_roll_pitch_yaw()
+
+        self.assertAlmostEqual(roll - yaw, rpy[0])
+        self.assertAlmostEqual(pitch, rpy[1])
+        self.assertAlmostEqual(0, rpy[2])
+
+    def test_roll_pitch_yaw_singular_2(self):
+        roll = 0.846
+        pitch = -np.pi / 2
+        yaw = 1.34321
+
+        q = quat_from_angle_vector(np.array([0, 0, yaw])) * quat_from_angle_vector(
+            np.array([0, pitch, 0])) * quat_from_angle_vector(np.array([roll, 0, 0]))
+
+        rpy = q.get_roll_pitch_yaw()
+
+        self.assertAlmostEqual(roll + yaw, rpy[0])
+        self.assertAlmostEqual(pitch, rpy[1])
+        self.assertAlmostEqual(0, rpy[2])
+
     # helper functions (all function that don't start with "test" are not executed as tests)
     def check_quat_equal(self, q1, q2, n_digits=7):
         # since negating all entries of a quaternion leads to an identical

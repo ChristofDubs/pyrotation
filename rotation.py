@@ -20,7 +20,7 @@ class Quaternion:
 
     The convention and the mathematical equations are adapted from:
 
-    "Quaternion kinematics for the error-state Kalman filter" by Joan SolÃ 
+    "Quaternion kinematics for the error-state Kalman filter" by Joan Solà
     http://www.iri.upc.edu/people/jsola/JoanSola/objectes/notes/kinematics.pdf
     '''
 
@@ -151,20 +151,27 @@ class Quaternion:
         """calculate roll, pitch and yaw angle equivalent of the quaternion
 
         This rotation sequence is defined as a rotation of the body frame about the body frame's z-axis by angle yaw, followed by a rotation about the body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
+
+        In case of singularity (pitch = +-pi/2), the rotation of the x and z-axis are aligned. The sum of roll+yaw is given in this case, but it is undefined how large the individual terms are. Here, yaw = 0 is returned, and the roll angle accounts for the full x/z rotation.
         """
         sin_p = 2 * (self.w * self.y - self.z * self.x)
         if sin_p >= 1:
-            p = np.pi / 2
+            pitch = np.pi / 2
+            yaw = 0
+            roll = np.arctan2(self.x * self.y - self.w * self.z, self.x * self.z + self.w * self.y)
         elif sin_p <= -1:
-            p = -np.pi / 2
+            pitch = -np.pi / 2
+            yaw = 0
+            roll = np.arctan2(-self.x * self.y + self.w * self.z, -
+                              self.x * self.z - self.w * self.y)
         else:
-            p = np.arcsin(sin_p)
+            pitch = np.arcsin(sin_p)
+            roll = np.arctan2(2 * (self.w * self.x + self.y * self.z),
+                              1 - 2 * (self.x**2 + self.y**2))
+            yaw = np.arctan2(2 * (self.w * self.z + self.x * self.y),
+                             1 - 2 * (self.y**2 + self.z**2))
 
-        r = np.arctan2(2 * (self.w * self.x + self.y * self.z), 1 - 2 * (self.x**2 + self.y**2))
-
-        y = np.arctan2(2 * (self.w * self.z + self.x * self.y), 1 - 2 * (self.y**2 + self.z**2))
-
-        return np.array([r, p, y])
+        return np.array([roll, pitch, yaw])
 
 # further functions for creating quaternions
 
