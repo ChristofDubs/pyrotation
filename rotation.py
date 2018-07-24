@@ -4,6 +4,7 @@
 """Quaternion class and further rotation related functions
 """
 import numpy as np
+from numpy import cos, sin
 
 
 class Quaternion:
@@ -184,7 +185,7 @@ def quat_from_angle_axis(angle, axis, norm=None):
         norm = np.linalg.norm(axis)
     if norm > 0:
         return Quaternion(np.concatenate(
-            [[np.cos(0.5 * angle)], axis * np.sin(0.5 * angle) / norm]))
+            [[cos(0.5 * angle)], axis * sin(0.5 * angle) / norm]))
     print('rotation axis has norm zero, rotation undefined')
     return Quaternion()
 
@@ -203,12 +204,12 @@ def quat_from_roll_pitch_yaw(roll, pitch, yaw):
 
     This rotation sequence is defined as a rotation about the body frame's z-axis by angle yaw, followed by a rotation about the (new) body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
     """
-    cos_p = np.cos(pitch * 0.5)
-    sin_p = np.sin(pitch * 0.5)
-    cos_r = np.cos(roll * 0.5)
-    sin_r = np.sin(roll * 0.5)
-    cos_y = np.cos(yaw * 0.5)
-    sin_y = np.sin(yaw * 0.5)
+    cos_p = cos(pitch * 0.5)
+    sin_p = sin(pitch * 0.5)
+    cos_r = cos(roll * 0.5)
+    sin_r = sin(roll * 0.5)
+    cos_y = cos(yaw * 0.5)
+    sin_y = sin(yaw * 0.5)
 
     qw = cos_p * cos_r * cos_y + sin_p * sin_r * sin_y
     qx = cos_p * sin_r * cos_y - sin_p * cos_r * sin_y
@@ -229,7 +230,7 @@ def rot_from_angle_axis(angle, axis, norm=None):
     if norm > 0:
         axis = axis / norm
         skew = np.array([[0, -axis[2], axis[1]], [axis[2], 0, -axis[0]], [-axis[1], axis[0], 0]])
-        return np.eye(3) + np.sin(angle) * skew + (1 - np.cos(angle)) * np.dot(skew, skew)
+        return np.eye(3) + sin(angle) * skew + (1 - cos(angle)) * np.dot(skew, skew)
     print('rotation axis has norm zero, rotation undefined')
     return np.eye(3)
 
@@ -242,20 +243,20 @@ def rot_from_angle_vector(angle_vec):
 
 def rot_x(angle):
     """calculate rotation matrix for a rotation around the x-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[1, 0, 0], [0, cos, -sin], [0, sin, cos]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
 
 def rot_y(angle):
     """calculate rotation matrix for a rotation around the y-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[cos, 0, sin], [0, 1, 0], [-sin, 0, cos]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
 def rot_z(angle):
     """calculate rotation matrix for a rotation around the z-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
