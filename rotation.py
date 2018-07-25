@@ -276,3 +276,34 @@ def rot_z(angle):
     c = cos(angle)
     s = sin(angle)
     return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+
+
+def rot_to_roll_pitch_yaw(rot):
+    """calculate roll, pitch and yaw angle equivalent of the rotation matrix
+
+    This rotation sequence is defined as a rotation of the body frame about the body frame's z-axis by angle yaw, followed by a rotation about the body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
+
+    By inspecting the elements in the rotation matrix in the function rot_from_roll_pitch_yaw, and by using the trigonometric relation tan(x) = sin(x) / cos(x), the rotation angles can be calculated from the entries of the rotation matrix.
+
+    In case of singularity (pitch = +-pi/2), the rotation of the x and z-axis are aligned. The sum of roll+yaw is given in this case, but it is undefined how large the individual terms are. Here, yaw = 0 is returned, and the roll angle accounts for the full x/z rotation.
+    """
+    # rot[2, 0] = -sin(pitch)
+    sin_p = -rot[2, 0]
+    if sin_p >= 1:
+        pitch = np.pi / 2
+        yaw = 0
+        # for pitch = pi/2: rot[0,1] = sin(roll - yaw); rot[0,2] = cos(roll - yaw)
+        roll = np.arctan2(rot[0, 1], rot[0, 2])
+    elif sin_p <= -1:
+        pitch = -np.pi / 2
+        yaw = 0
+        # for pitch = -pi/2: rot[0,1] = -sin(roll + yaw); rot[0,2] = -cos(roll + yaw)
+        roll = np.arctan2(-rot[0, 1], -rot[0, 2])
+    else:
+        pitch = np.arcsin(sin_p)
+        # rot[2,1] = sin(roll)*cos(pitch); rot[2,2] = cos(roll)*cos(pitch)
+        roll = np.arctan2(rot[2, 1], rot[2, 2])
+        # rot[1,0] = sin(yaw)*cos(pitch); rot[0,0] = cos(yaw)*cos(pitch)
+        yaw = np.arctan2(rot[1, 0], rot[0, 0])
+
+    return np.array([roll, pitch, yaw])

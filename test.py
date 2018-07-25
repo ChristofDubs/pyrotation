@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from rotation import Quaternion, quat_from_angle_axis, quat_from_angle_vector, quat_from_roll_pitch_yaw, rot_from_angle_axis, rot_from_angle_vector, rot_from_roll_pitch_yaw, rot_x, rot_y, rot_z
+from rotation import Quaternion, quat_from_angle_axis, quat_from_angle_vector, quat_from_roll_pitch_yaw, rot_from_angle_axis, rot_from_angle_vector, rot_from_roll_pitch_yaw, rot_x, rot_y, rot_z, rot_to_roll_pitch_yaw
 
 
 class TestRotation(unittest.TestCase):
@@ -71,6 +71,42 @@ class TestRotation(unittest.TestCase):
         rot2 = rot_from_roll_pitch_yaw(roll, pitch, yaw)
 
         self.check_rot_equal(rot1, rot2)
+
+    def test_rot_to_roll_pitch_yaw(self):
+        roll = 1.8526989
+        pitch = -0.75699
+        yaw = -2.89421
+
+        rot = np.dot(rot_z(yaw), np.dot(rot_y(pitch), rot_x(roll)))
+        rpy = rot_to_roll_pitch_yaw(rot)
+
+        self.assertAlmostEqual(roll, rpy[0])
+        self.assertAlmostEqual(pitch, rpy[1])
+        self.assertAlmostEqual(yaw, rpy[2])
+
+    def test_rot_to_roll_pitch_yaw_singular(self):
+        roll = 1.8526989
+        pitch = np.pi / 2
+        yaw = 2.89421
+
+        rot = np.dot(rot_z(yaw), np.dot(rot_y(pitch), rot_x(roll)))
+        rpy = rot_to_roll_pitch_yaw(rot)
+
+        self.assertAlmostEqual(roll - yaw, rpy[0])
+        self.assertAlmostEqual(pitch, rpy[1])
+        self.assertAlmostEqual(0, rpy[2])
+
+    def test_rot_to_roll_pitch_yaw_singular_2(self):
+        roll = 0.846
+        pitch = -np.pi / 2
+        yaw = 1.34321
+
+        rot = np.dot(rot_z(yaw), np.dot(rot_y(pitch), rot_x(roll)))
+        rpy = rot_to_roll_pitch_yaw(rot)
+
+        self.assertAlmostEqual(roll + yaw, rpy[0])
+        self.assertAlmostEqual(pitch, rpy[1])
+        self.assertAlmostEqual(0, rpy[2])
 
     def test_quat_from_angle_axis(self):
         axis = np.array([-1, 5, 3.4])
