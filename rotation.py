@@ -153,7 +153,7 @@ class Quaternion:
 
         This rotation sequence is defined as a rotation of the body frame about the body frame's z-axis by angle yaw, followed by a rotation about the body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
 
-        In case of singularity (pitch = +-pi/2), the rotation of the x and z-axis are aligned. The sum of roll+yaw is given in this case, but it is undefined how large the individual terms are. Here, yaw = 0 is returned, and the roll angle accounts for the full x/z rotation.
+        The angles can be calculated from the quaternion by using the function rot_to_roll_pitch_yaw and replacing the rotation matrix entries with the quaternion expressions derived in the member function rotation_matrix: q.get_roll_pitch_yaw() = rot_to_roll_pitch_yaw(q.rotation_matrix())
         """
         sin_p = 2 * (self.w * self.y - self.z * self.x)
         if sin_p >= 1:
