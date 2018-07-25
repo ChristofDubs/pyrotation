@@ -117,6 +117,10 @@ class Quaternion:
         return np.zeros(4)
 
     def inverse(self,):
+        """calculate the inverse q_inv of the quaternion q such that q*q_inv = [1,0,0,0] (unit quaternion)
+
+        Since q(axis, theta) = [cos(theta/2), axis*sin(theta/2)] and its inverse is q_inv = q(axis, -theta), the inverse of q is q_inv = [cos(-theta/2), axis*sin(-theta/2)] = [cos(theta/2), -axis*sin(theta/2)]. Hence, to get from q to q_inv, the [x,y,z] entries have to be inverted.
+        """
         return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
     def rotation_matrix(self,):
