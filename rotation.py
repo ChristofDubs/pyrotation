@@ -4,6 +4,7 @@
 """Quaternion class and further rotation related functions
 """
 import numpy as np
+from numpy import cos, sin
 
 
 class Quaternion:
@@ -20,7 +21,7 @@ class Quaternion:
 
     The convention and the mathematical equations are adapted from:
 
-    "Quaternion kinematics for the error-state Kalman filter" by Joan SolÃ 
+    "Quaternion kinematics for the error-state Kalman filter" by Joan Solà
     http://www.iri.upc.edu/people/jsola/JoanSola/objectes/notes/kinematics.pdf
     '''
 
@@ -116,6 +117,10 @@ class Quaternion:
         return np.zeros(4)
 
     def inverse(self,):
+        """calculate the inverse q_inv of the quaternion q such that q*q_inv = [1,0,0,0] (unit quaternion)
+
+        Since q(axis, theta) = [cos(theta/2), axis*sin(theta/2)] and its inverse is q_inv = q(axis, -theta), the inverse of q is q_inv = [cos(-theta/2), axis*sin(-theta/2)] = [cos(theta/2), -axis*sin(theta/2)]. Hence, to get from q to q_inv, the [x,y,z] entries have to be inverted.
+        """
         return Quaternion(np.array([self.w, -self.x, -self.y, -self.z]))
 
     def rotation_matrix(self,):
@@ -151,20 +156,27 @@ class Quaternion:
         """calculate roll, pitch and yaw angle equivalent of the quaternion
 
         This rotation sequence is defined as a rotation of the body frame about the body frame's z-axis by angle yaw, followed by a rotation about the body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
+
+        The angles can be calculated from the quaternion by using the function rot_to_roll_pitch_yaw and replacing the rotation matrix entries with the quaternion expressions derived in the member function rotation_matrix: q.get_roll_pitch_yaw() = rot_to_roll_pitch_yaw(q.rotation_matrix())
         """
         sin_p = 2 * (self.w * self.y - self.z * self.x)
         if sin_p >= 1:
-            p = np.pi / 2
+            pitch = np.pi / 2
+            yaw = 0
+            roll = np.arctan2(self.x * self.y - self.w * self.z, self.x * self.z + self.w * self.y)
         elif sin_p <= -1:
-            p = -np.pi / 2
+            pitch = -np.pi / 2
+            yaw = 0
+            roll = np.arctan2(-self.x * self.y + self.w * self.z, -
+                              self.x * self.z - self.w * self.y)
         else:
-            p = np.arcsin(sin_p)
+            pitch = np.arcsin(sin_p)
+            roll = np.arctan2(2 * (self.w * self.x + self.y * self.z),
+                              1 - 2 * (self.x**2 + self.y**2))
+            yaw = np.arctan2(2 * (self.w * self.z + self.x * self.y),
+                             1 - 2 * (self.y**2 + self.z**2))
 
-        r = np.arctan2(2 * (self.w * self.x + self.y * self.z), 1 - 2 * (self.x**2 + self.y**2))
-
-        y = np.arctan2(2 * (self.w * self.z + self.x * self.y), 1 - 2 * (self.y**2 + self.z**2))
-
-        return np.array([r, p, y])
+        return np.array([roll, pitch, yaw])
 
 # further functions for creating quaternions
 
@@ -177,7 +189,7 @@ def quat_from_angle_axis(angle, axis, norm=None):
         norm = np.linalg.norm(axis)
     if norm > 0:
         return Quaternion(np.concatenate(
-            [[np.cos(0.5 * angle)], axis * np.sin(0.5 * angle) / norm]))
+            [[cos(0.5 * angle)], axis * sin(0.5 * angle) / norm]))
     print('rotation axis has norm zero, rotation undefined')
     return Quaternion()
 
@@ -196,12 +208,12 @@ def quat_from_roll_pitch_yaw(roll, pitch, yaw):
 
     This rotation sequence is defined as a rotation about the body frame's z-axis by angle yaw, followed by a rotation about the (new) body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
     """
-    cos_p = np.cos(pitch * 0.5)
-    sin_p = np.sin(pitch * 0.5)
-    cos_r = np.cos(roll * 0.5)
-    sin_r = np.sin(roll * 0.5)
-    cos_y = np.cos(yaw * 0.5)
-    sin_y = np.sin(yaw * 0.5)
+    cos_p = cos(pitch * 0.5)
+    sin_p = sin(pitch * 0.5)
+    cos_r = cos(roll * 0.5)
+    sin_r = sin(roll * 0.5)
+    cos_y = cos(yaw * 0.5)
+    sin_y = sin(yaw * 0.5)
 
     qw = cos_p * cos_r * cos_y + sin_p * sin_r * sin_y
     qx = cos_p * sin_r * cos_y - sin_p * cos_r * sin_y
@@ -222,7 +234,7 @@ def rot_from_angle_axis(angle, axis, norm=None):
     if norm > 0:
         axis = axis / norm
         skew = np.array([[0, -axis[2], axis[1]], [axis[2], 0, -axis[0]], [-axis[1], axis[0], 0]])
-        return np.eye(3) + np.sin(angle) * skew + (1 - np.cos(angle)) * np.dot(skew, skew)
+        return np.eye(3) + sin(angle) * skew + (1 - cos(angle)) * np.dot(skew, skew)
     print('rotation axis has norm zero, rotation undefined')
     return np.eye(3)
 
@@ -233,22 +245,69 @@ def rot_from_angle_vector(angle_vec):
     return rot_from_angle_axis(angle, angle_vec, norm=angle)
 
 
+def rot_from_roll_pitch_yaw(roll, pitch, yaw):
+    """calculate rotation matrix from roll, pitch and yaw
+
+    This result can be generated symbolically by rot_z(yaw) * rot_y(pitch) * rot_x(roll).
+    """
+    return np.array([[cos(pitch) * cos(yaw),
+                      sin(pitch) * sin(roll) * cos(yaw) - sin(yaw) * cos(roll),
+                      sin(pitch) * cos(roll) * cos(yaw) + sin(roll) * sin(yaw)],
+                     [sin(yaw) * cos(pitch),
+                      sin(pitch) * sin(roll) * sin(yaw) + cos(roll) * cos(yaw),
+                      sin(pitch) * sin(yaw) * cos(roll) - sin(roll) * cos(yaw)],
+                     [-sin(pitch),
+                      sin(roll) * cos(pitch),
+                      cos(pitch) * cos(roll)]])
+
+
 def rot_x(angle):
     """calculate rotation matrix for a rotation around the x-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[1, 0, 0], [0, cos, -sin], [0, sin, cos]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
 
 
 def rot_y(angle):
     """calculate rotation matrix for a rotation around the y-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[cos, 0, sin], [0, 1, 0], [-sin, 0, cos]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
 def rot_z(angle):
     """calculate rotation matrix for a rotation around the z-axis"""
-    cos = np.cos(angle)
-    sin = np.sin(angle)
-    return np.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
+    c = cos(angle)
+    s = sin(angle)
+    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
+
+
+def rot_to_roll_pitch_yaw(rot):
+    """calculate roll, pitch and yaw angle equivalent of the rotation matrix
+
+    This rotation sequence is defined as a rotation of the body frame about the body frame's z-axis by angle yaw, followed by a rotation about the body frame's y-axis by angle pitch, followed by a rotation about the body frame's x-axis by angle roll.
+
+    By inspecting the elements in the rotation matrix in the function rot_from_roll_pitch_yaw, and by using the trigonometric relation tan(x) = sin(x) / cos(x), the rotation angles can be calculated from the entries of the rotation matrix.
+
+    In case of singularity (pitch = +-pi/2), the rotation of the x and z-axis are aligned. The sum of roll+yaw is given in this case, but it is undefined how large the individual terms are. Here, yaw = 0 is returned, and the roll angle accounts for the full x/z rotation.
+    """
+    # rot[2, 0] = -sin(pitch)
+    sin_p = -rot[2, 0]
+    if sin_p >= 1:
+        pitch = np.pi / 2
+        yaw = 0
+        # for pitch = pi/2: rot[0,1] = sin(roll - yaw); rot[0,2] = cos(roll - yaw)
+        roll = np.arctan2(rot[0, 1], rot[0, 2])
+    elif sin_p <= -1:
+        pitch = -np.pi / 2
+        yaw = 0
+        # for pitch = -pi/2: rot[0,1] = -sin(roll + yaw); rot[0,2] = -cos(roll + yaw)
+        roll = np.arctan2(-rot[0, 1], -rot[0, 2])
+    else:
+        pitch = np.arcsin(sin_p)
+        # rot[2,1] = sin(roll)*cos(pitch); rot[2,2] = cos(roll)*cos(pitch)
+        roll = np.arctan2(rot[2, 1], rot[2, 2])
+        # rot[1,0] = sin(yaw)*cos(pitch); rot[0,0] = cos(yaw)*cos(pitch)
+        yaw = np.arctan2(rot[1, 0], rot[0, 0])
+
+    return np.array([roll, pitch, yaw])
