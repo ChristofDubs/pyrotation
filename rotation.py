@@ -109,9 +109,9 @@ class Quaternion(object):
 
     def q_dot(self, omega, frame='body'):
         """calculate the quaternion derivative as a result to angular velocity"""
-        if frame is 'body':
+        if frame == 'body':
             return 0.5 * np.dot(self.get_left_mult_matrix()[:, 1:], omega)
-        if frame is 'inertial':
+        if frame == 'inertial':
             return 0.5 * np.dot(self.get_right_mult_matrix()[:, 1:], omega)
         print('frame "{}" invalid. Use "body" or "inertial"'.format(frame))
         return np.zeros(4)
