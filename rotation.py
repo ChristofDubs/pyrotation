@@ -4,7 +4,8 @@
 """Quaternion class and further rotation related functions
 """
 import numpy as np
-from numpy import cos, sin
+cos = np.cos
+sin = np.sin
 
 
 class Quaternion(object):
