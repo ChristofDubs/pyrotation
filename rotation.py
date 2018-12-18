@@ -7,7 +7,7 @@ import numpy as np
 from numpy import cos, sin
 
 
-class Quaternion:
+class Quaternion(object):
     ''' Quaternion class
 
     The quaternion convention used in this class is
