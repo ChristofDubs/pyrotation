@@ -4,10 +4,11 @@
 """Quaternion class and further rotation related functions
 """
 import numpy as np
-from numpy import cos, sin
+cos = np.cos
+sin = np.sin
 
 
-class Quaternion:
+class Quaternion(object):
     ''' Quaternion class
 
     The quaternion convention used in this class is
@@ -109,9 +110,9 @@ class Quaternion:
 
     def q_dot(self, omega, frame='body'):
         """calculate the quaternion derivative as a result to angular velocity"""
-        if frame is 'body':
+        if frame == 'body':
             return 0.5 * np.dot(self.get_left_mult_matrix()[:, 1:], omega)
-        if frame is 'inertial':
+        if frame == 'inertial':
             return 0.5 * np.dot(self.get_right_mult_matrix()[:, 1:], omega)
         print('frame "{}" invalid. Use "body" or "inertial"'.format(frame))
         return np.zeros(4)
