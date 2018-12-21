@@ -1,17 +1,9 @@
-language: python
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-cache: pip
-install:
-script:
-  - python test.py
-
 # coverity
 env:
   global:
-   - secure: GUscl2jnucZNq5vdUs+cW5+Cc4OBDfghXwZwsa/P8c7MCvZYtL2xSJG9/zZ2Mq5f+wzVWZ7xVdNjGCSyDTnkUnrLLX+4yq9dtWUwRmab2R1d87H7ajl56zV7Jf9uvfmv2yUbThsvBfBMkRoJ8aNXihYt2Ix+NFSJEw6OiRI/PZp/utBItAYqVTVnE83ncvDu/GwJctR2mrtTgwwqM4Eq0IMC1f7wusfjJr4ua1Veana7RFLUV98seG1Yy56+ba0I9EHB++t5Qt7xShwxm7sBEZ/62fEKyz8W+d3yVkGbi+7UlmLj1E7qFMpfrgduCUCUTPqMobMs6Xb6Dbnkw5qNFCZPVh9pwvSht+tv5lI4hTD8DZuW+6fm1eYAJtaQ2sKlIA89XOkOMkANKM7zq/K5yMYK6fHlN9miQBgXTe/8eMeFJB6fCWs/I7d/MmdU0Y3gbqme/I8PWKWe8Wy/ozrt3AI8u+4sLRB09fuXXwGYCpO2YHAZJ5w7nJrFZ40FjdZ3wO09zBahHszNih5aK+giFSrnzQVok0P3rvX5zoCqQYt/iW6QfkN0MvzTETutGL+HC+VS0o5XxGfPdBsDKlV7y8ryftmY4o4Y7f3fWHaYSF986h21jnf/FE12OgAolm3/ZvzriaCTVh1i+9o5rpoQjXf0n+Wost6o+MpF/nz2ncs=
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "CtjbyXy6/hMBjqjxQPV5BnpseoJ3QvnGK367bAadtFnUbYYOQm+GZEkKS6N9e6023EICrZH2SQsicelEsb3hVL3KjuipfYhu5Rh1cwa8vlzI2zNP7/qkcdwXch8xMJgkh2iPQ8iQz/V65a6s1VM6l+ZDEZNcl4W3jxfAZy/dBLwCuNbdQ8ve6KCAjTeLGw2DaRTVvWCUziaE/OXjPscWY9Vn8QiLmJj29dwGHV5xLeRzPbzXCily6hW+RhgpyIYA/CC77HL1BlUPW3TG0YodmFe808bphJL0WTj00KsfsblVqC3D0A1jRIhK6TShsAKSdXypPWl0+EiJSYyxM4aiXXwMHqABn0L4rprk+SldB7rLABKPzOiCVAQIMl/8/l8WTaB1XhRtr3Jx0ibA4u2gGxhkMJAnQdlPiTto4j0HvWiyuWaIpIjrDpq2YAeVOvDoK0N21X3rQSVol94uaoAW0Y4H2jIOUZs3DCwqpioDSIuYxjtCI4YhsjrrGXURT3vyTOOXoUpdckNdUbMTWUJVREnhsvQuwTECzB74C37RW6P6WR5YWI8NxBe5zdtSApg5Fjg7KM/T+ko/h91vtGbndMW0PFR86b1OHYwyuv57VemcaGLeY04Ph+EJttrK/uTZ6Cm02pIFAMzH0XChEdVwt8R0pnLLqs2HNoo+ViwR56w="
 
 before_install:
   - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
@@ -25,3 +17,14 @@ addons:
     build_command_prepend:
     build_command:
     branch_pattern: coverity_scan
+
+# unit tests
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+cache: pip
+install:
+script:
+  - python test.py
