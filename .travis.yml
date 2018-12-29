@@ -6,4 +6,4 @@ python:
 cache: pip
 install:
 script:
-  - python test.py
+  - python test/test.py
