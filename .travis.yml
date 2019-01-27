@@ -5,5 +5,8 @@ python:
   - "3.4"
 cache: pip
 install:
+  - pip install coveralls
 script:
-  - python tests/test.py
+  - coverage run --source pyrotation tests/test.py
+after_success:
+  - coveralls
