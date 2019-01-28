@@ -37,7 +37,7 @@ q3 = q1.inverse() * q2
 rot3 = q3.rotation_matrix()
 ```
 
-To view all available functions, run `pydoc pyrotation` in the terminal, or type `import pyrotation ` followed by `help(pyrotation)` in a python file.
+To view all available functions, run `pydoc pyrotation` in the terminal, or type `import pyrotation` followed by `help(pyrotation)` in a python file.
 
 ## License
 
