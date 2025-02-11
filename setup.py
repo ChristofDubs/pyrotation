@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyrotation",
-    version="0.0.1",
+    version="0.0.2",
     author="Christof Dubs",
     author_email="christof.dubs@gmx.ch",
     description="A numpy-based rotation library",

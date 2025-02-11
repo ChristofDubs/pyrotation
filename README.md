@@ -14,7 +14,7 @@ A numpy-based rotation library
 The recommended way is installing the package using pip:
 
 ```shell
-pip install git+https://github.com/ChristofDubs/pyrotation.git@v0.0.1#egg=pyrotation
+pip install git+https://github.com/ChristofDubs/pyrotation.git@v0.0.2#egg=pyrotation
 ```
 
 Alternatively, clone this repo:
