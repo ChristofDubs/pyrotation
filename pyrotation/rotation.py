@@ -22,7 +22,7 @@ class Quaternion(object):
 
     The convention and the mathematical equations are adapted from:
 
-    "Quaternion kinematics for the error-state Kalman filter" by Joan Sol‡
+    "Quaternion kinematics for the error-state Kalman filter" by Joan Sol√†
     http://www.iri.upc.edu/people/jsola/JoanSola/objectes/notes/kinematics.pdf
     '''
 
@@ -71,7 +71,7 @@ class Quaternion(object):
 
     def set_default(self,):
         """set values representing a neutral quaternion (zero rotation)"""
-        self.q = np.array([1, 0, 0, 0], dtype=np.float)
+        self.q = np.array([1, 0, 0, 0], dtype=float)
 
     def normalize(self,):
         """scale quaternion such that its 2-norm is equal to one"""
